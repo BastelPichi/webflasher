@@ -337,7 +337,11 @@ function getScooterData(uid, sn, km) {
                     new Uint8Array(Array.from(memory.slice(8, 12)).reverse())
             ]
 
-            const scooterData = getScooterData(uid, document.getElementById("sn"), Int(document.getElementById("km")));
+            var sn = document.getElementById("sn")
+            if (sn == "") {
+                sn = "00000/000000000"
+            }
+            const scooterData = getScooterData(uid, sn, parseInt(document.getElementById("km"), 10));
 
             var bootloader = await binFetch(getBootloader(fake, nb))
             var drv = await binFetch(getDrv(scooter))
