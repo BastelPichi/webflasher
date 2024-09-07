@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="sakura-earthly.css" />
+    <title>Webflasher</title>
+    <script src="webflasher.js" type="module"></script>
+    <style>
+      div.debug {
+        white-space: pre;
+      }
+      div.verbose {
+        white-space: pre;
+      }
+      div.info {
+        white-space: pre;
+      }
+      div.message {
+        white-space: pre;
+      }
+      div.error {
+        white-space: pre;
+        color: red;
+      }
+      div.warning {
+        white-space: pre;
+        color: red;
+      }
+      div.log {
+        min-height: 3em;
+        max-height: 10em;
+        font-family: monospace;
+        overflow-y:scroll;
+      }
+
+      div.registers {
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      span.register {
+        white-space: pre;
+        font-family: monospace;
+        flex: 1 0 27ch;
+        margin-left: 3ch;
+      }
+
+      span.register-updated {
+        font-weight: bold;
+      }
+    </style>
+  </head>
+
+  <body>
+    <p>
+      <details id="probeInfo">
+        <summary>Debugger - Disconnected</summary>
+        Product Name: <span id="productName"></span><br/>
+        Manufacturer: <span id="mfgName"></span><br/>
+        Serial Number: <span id="serialNumber"></span><br/>
+      </details>
+      <details id="targetInfo">
+        <summary>Target <span id="targetType">-</span> <span id="targetStatus">Unknown</span></summary>
+      </details>
+    </p>
+
+    SN: <input type="text" id="sn" placeholder="00000/00000000"><br>
+    Odometer: <input type="text" id="km" placeholder="0"></input>km
+    <br>
+    Select Scooter: <select id="scooter">
+      <option value="max">Ninebot G30</option>
+      <option value="g2">Ninebot G2</option>
+      <option value="pro2">Xiaomi Pro 2</option>
+      <option value="pro">Xiaomi Pro</option>
+    </select>
+    <br>
+    <input type="checkbox" id="fake"> Fake Chip (AT32/GD32)
+
+    <p>
+      <button id="flashButton">Start Flashing</button>
+    </p>
+    
+    <div id="log" class="log"></div>
+
+    
+
+    <dialog id="mcuDialog">
+      <form id="mcuForm" method="dialog">
+        <table>
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Manufacturer</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <button type="submit">Select controller</button>
+      </form>
+    </dialog>
+  </body>
+</html>

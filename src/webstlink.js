@@ -325,7 +325,8 @@ export default class WebStlink {
                     this._sram_size = mcu.sram_size;
                     this._eeprom_size = mcu.eeprom_size;
                 } else {
-                    this._dbg.warning("Automatically choosing the MCU variant with the smallest flash and eeprom");
+                    this._dbg.warning("No Valid MCU found! Do you have an controller with clone MCU?");
+                    return;
                     this._mcu = this._mcus.find(m => (m.sram_size == this._sram_size));
                 }
             } else {
@@ -527,6 +528,14 @@ export default class WebStlink {
         } finally {
             this._mutex.unlock();
         }
+    }
+
+    async raw_mem(addr, data) {
+        await this._driver.flash_write(addr, data, {
+                erase: false,
+                verify: false,
+                erase_sizes: this._mcus_by_devid.erase_sizes
+            });
     }
 
     async flash(addr, data) {
