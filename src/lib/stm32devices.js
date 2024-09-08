@@ -25,6 +25,13 @@ export default [
                     {'type': 'GD32', 'flash_size':  128, 'sram_size':  20, 'eeprom_size':  0, 'freq':  72},
                 ],
             },
+        ],
+    },
+    {
+        'part_no': 0xc24,
+        'core': 'CortexM4',
+        'idcode_reg': 0xE0042000,
+        'devices': [
             {
                 'dev_id': 0x1C5,
                 'flash_size_reg': 0x1ffff7e0,
