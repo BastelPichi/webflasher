@@ -247,9 +247,7 @@ export default class WebStlink {
 
     async find_mcus_by_flash_size() {
         this._flash_size = await this._stlink.get_debugreg16(this._mcus_by_devid.flash_size_reg);
-        this._mcus = this._mcus_by_devid.devices.filter(
-            mcu => (mcu.flash_size == this._flash_size)
-        );
+        this._mcus = this._mcus_by_devid.devices
         if (this._mcus.length == 0) {
             throw new libstlink.exceptions.Exception(`Connected CPU with DEV_ID: 0x${H24(this._mcus_by_devid.dev_id)} and FLASH size: ${this._flash_size}KB is not supported`);
         }
