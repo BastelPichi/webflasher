@@ -139,14 +139,8 @@ document.addEventListener('DOMContentLoaded', event => {
     let scooterSelection = document.querySelector("#scooter");
     
     images.addEventListener('click', async function () {
-        document.location = "/images.html?scooter=" + scooterSelection.value
+        window.open("/images.html?scooter=" + scooterSelection.value, "_blank").focus();
     })
-
-    scooterSelection.addEventListener("change", (event) => {
-        console.log(event.target.value)
-        document.querySelector("#images").href = "/images.html?scooter=" + event.target.value;
-    });
-
 
     flashButton.addEventListener('click', async function() {
         startFlashing()
