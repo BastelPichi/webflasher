@@ -55,6 +55,10 @@
         width: 100%;
         text-align: center;
       }
+
+      a:hover {
+        cursor: grab;
+      }
     </style>
   </head>
 
@@ -72,14 +76,14 @@
     </p>
 
     SN: <input type="text" id="sn" placeholder="00000/00000000"><br>
-    Odometer: <input type="text" id="km" placeholder="0"></input>km
+    Odometer: <input type="number" id="km" placeholder="0" size="10"></input>km
     <br>
     Select Scooter: <select id="scooter">
       <option value="max">Ninebot G30</option>
       <option value="g2">Ninebot G2</option>
       <option value="pro2">Xiaomi Pro 2</option>
       <option value="pro">Xiaomi Pro</option>
-    </select>
+    </select> <a id="images">Images</a>
     <br>
     <input type="checkbox" id="fake"> Fake Chip (AT32/GD32)
 

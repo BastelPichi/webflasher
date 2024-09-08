@@ -134,7 +134,19 @@ document.addEventListener('DOMContentLoaded', event => {
     let log = document.querySelector("#log");
     let logger = new libstlink.Logger(2, log);
     
+    let images = document.querySelector("#images")
     let flashButton = document.querySelector("#flashButton");
+    let scooterSelection = document.querySelector("#scooter");
+    
+    images.addEventListener('click', async function () {
+        document.location = "/images.html?scooter=" + scooterSelection.value
+    })
+
+    scooterSelection.addEventListener("change", (event) => {
+        console.log(event.target.value)
+        document.querySelector("#images").href = "/images.html?scooter=" + event.target.value;
+    });
+
 
     flashButton.addEventListener('click', async function() {
         startFlashing()
