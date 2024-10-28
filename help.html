@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="sakura-earthly.css" />
+    <title>Webflasher</title>
+    <script src="webflasher.js" type="module"></script>
+    <style>
+      div.debug {
+        white-space: pre;
+      }
+      div.verbose {
+        white-space: pre;
+      }
+      div.info {
+        white-space: pre;
+      }
+      div.message {
+        white-space: pre;
+      }
+      div.error {
+        white-space: pre;
+        color: red;
+      }
+      div.warning {
+        white-space: pre;
+        color: red;
+      }
+      div.log {
+        min-height: 3em;
+        max-height: 10em;
+        font-family: monospace;
+        overflow-y:scroll;
+      }
+
+      div.registers {
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      span.register {
+        white-space: pre;
+        font-family: monospace;
+        flex: 1 0 27ch;
+        margin-left: 3ch;
+      }
+
+      span.register-updated {
+        font-weight: bold;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h2>Windows</h2>
+    <p>
+        To use this project on Windows, we need the WinUSB driver.
+        Usually there shouldnt be any need to install drivers, however if 
+        theres issues connecting, or the ST-Link doesn't show up, you might want 
+        to try installing the driver manually.
+        <br>
+        <br>
+        1) Download <a href="https://zadig.akeo.ie">Zadig</a>.<br>
+        2) Launch Zadig. If your ST-Link doesn't show up in the list, click on Options -> List all devices.<br>
+        3) Select WinUSB next to the green arrow. Press "Replace Driver".<br>
+        4) You should be good to go!<br>
+    </p>
+    <h2>Linux</h2>
+    <p>
+        Linux shouldn't require any drivers, however we need to setup an udev rule to allow to the ST-Link.
+        <br>
+        <br>
+        1) Copy or save the following config file:
+        <script src="https://gist.github.com/BastelPichi/e64380a392361568c8cda470fb9e3555.js"></script>
+        2) Put the file into <code>/etc/udev/rules.d/66-stlink.rules</code>.<br>
+        3) Restart your device.<br>
+        4) You should be good to go!<br>
+    </p>
+    <h2>That didn't help?</h2>
+    <p>
+        Thats unfortuante. You can contact me on Discord, so we can try to resolve the issue.<br>
+        Discord: @bastelpichi
+    </p>
+  </body>
+</html>

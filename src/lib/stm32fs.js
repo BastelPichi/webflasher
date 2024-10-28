@@ -228,7 +228,7 @@ class Flash {
     }
 
     async wait_busy(wait_time, bargraph_msg = null) {
-        const end_time = (Date.now() + (wait_time * 1.5 * 1000));
+        const end_time = (Date.now() + (wait_time * 3.5 * 1000));
         if (bargraph_msg) {
             this._dbg.bargraph_start(bargraph_msg, {
                 "value_min": Date.now()/1000.0,

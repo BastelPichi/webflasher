@@ -42,6 +42,8 @@ const STLINK_DEBUG_STEPCORE = 0x0a;
 const STLINK_DEBUG_APIV1_SETFP = 0x0b;
 const STLINK_DEBUG_READMEM_8BIT = 0x0c;
 const STLINK_DEBUG_WRITEMEM_8BIT = 0x0d;
+const STLINK_DEBUG_READMEM_16BIT = 0x47;
+const STLINK_DEBUG_WRITEMEM_16BIT = 0x48;
 const STLINK_DEBUG_APIV1_CLEARFP = 0x0e;
 const STLINK_DEBUG_APIV1_WRITEDEBUGREG = 0x0f;
 const STLINK_DEBUG_APIV1_SETWATCHPOINT = 0x10;
@@ -328,6 +330,44 @@ export default class Stlink {
         let view = new DataView(cmd);
         view.setUint8(0, STLINK_DEBUG_COMMAND);
         view.setUint8(1, STLINK_DEBUG_WRITEMEM_32BIT);
+        view.setUint32(2, addr, true);
+        view.setUint32(6, data.length, true);
+        return this._connector.xfer(cmd, {"data": data});
+    }
+
+        get_mem16(addr, size) {
+        if (addr % 2) {
+            throw new Exception("get_mem16: Address must be in multiples of 2");
+        }
+        if (data.length % 2) {
+            throw new Exception("get_mem16: Size must be in multiples of 2");
+        }
+        if (data.length > STLINK_MAXIMUM_TRANSFER_SIZE) {
+            throw new Exception(`get_mem16: Size for writing is ${data.length} but maximum can be ${STLINK_MAXIMUM_TRANSFER_SIZE}`);
+        }
+        let cmd = new ArrayBuffer(10);
+        let view = new DataView(cmd);
+        view.setUint8(0, STLINK_DEBUG_COMMAND);
+        view.setUint8(1, STLINK_DEBUG_READMEM_16BIT);
+        view.setUint32(2, addr, true);
+        view.setUint32(6, size, true);
+        return this._connector.xfer(cmd, {"rx_len": size});
+    }
+
+    set_mem16(addr, data) {
+        if (addr % 2) {
+            throw new Exception("set_mem16: Address must be in multiples of 2");
+        }
+        if (data.length % 2) {
+            throw new Exception("set_mem16: Size must be in multiples of 2");
+        }
+        if (data.length > STLINK_MAXIMUM_TRANSFER_SIZE) {
+            throw new Exception(`set_mem16: Size for writing is ${data.length} but maximum can be ${STLINK_MAXIMUM_TRANSFER_SIZE}`);
+        }
+        let cmd = new ArrayBuffer(10);
+        let view = new DataView(cmd);
+        view.setUint8(0, STLINK_DEBUG_COMMAND);
+        view.setUint8(1, STLINK_DEBUG_WRITEMEM_16BIT);
         view.setUint32(2, addr, true);
         view.setUint32(6, data.length, true);
         return this._connector.xfer(cmd, {"data": data});

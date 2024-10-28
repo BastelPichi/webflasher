@@ -19,6 +19,7 @@ import {
 const FLASH_REG_BASE = 0x40022000;
 const FLASH_REG_BASE_STEP = 0x40;
 const FLASH_KEYR_INDEX = 0x04;
+const FLASH_OPTB_INDEX = 0x08;
 const FLASH_SR_INDEX = 0x0c;
 const FLASH_CR_INDEX = 0x10;
 const FLASH_AR_INDEX = 0x14;
@@ -26,6 +27,7 @@ const FLASH_KEYR_REG = FLASH_REG_BASE + FLASH_KEYR_INDEX;
 const FLASH_SR_REG = FLASH_REG_BASE + FLASH_SR_INDEX;
 const FLASH_CR_REG = FLASH_REG_BASE + FLASH_CR_INDEX;
 const FLASH_AR_REG = FLASH_REG_BASE + FLASH_AR_INDEX;
+const FLASH_OPTB_REG = FLASH_REG_BASE + FLASH_OPTB_INDEX;
 
 const FLASH_CR_LOCK_BIT = 0x00000080;
 const FLASH_CR_PG_BIT = 0x00000001;
@@ -85,7 +87,7 @@ class Flash {
     }
 
     async unlock() {
-        await this._driver.core_reset_halt();
+        await this._driver.core_halt();
         // programming locked
         let cr_reg = await this._stlink.get_debugreg32(this.FLASH_CR_REG);
         if (cr_reg & FLASH_CR_LOCK_BIT) {
@@ -294,6 +296,55 @@ class Stm32FP extends Stm32 {
             }
         }
         await this._flash_write(addr, data, arguments[2]);
+    }
+
+    async await_eop() {
+        for (var i=0; i<40; i++) {
+            var flash_sr = await stlink._driver._stlink.get_debugreg32(FLASH_SR_REG)
+
+            if (flash_sr == 0x20) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    async remove_rdp() {
+        var flash = new Flash(this, this._stlink, this._dbg, 0);
+        await flash.init();
+        await flash.unlock();
+
+        await stlink._driver._stlink.set_debugreg32(FLASH_OPTB_REG, 0x45670123)
+        await stlink._driver._stlink.set_debugreg32(FLASH_OPTB_REG, 0xcdef89ab)
+
+        await stlink._driver._stlink.set_debugreg32(FLASH_CR_REG, 0x00000220)
+        await stlink._driver._stlink.set_debugreg32(FLASH_CR_REG, 0x00000260)
+
+        if (!await this.await_eop()) {
+            this._dbg.error("Error erasing option bytes. Please try again.");
+            return;
+        }
+
+        await stlink._driver._stlink.set_debugreg32(FLASH_KEYR_REG, 0x45670123)
+        await stlink._driver._stlink.set_debugreg32(FLASH_KEYR_REG, 0xcdef89ab)
+
+        await stlink._driver._stlink.set_debugreg32(FLASH_OPTB_REG, 0x45670123)
+        await stlink._driver._stlink.set_debugreg32(FLASH_OPTB_REG, 0xcdef89ab)
+
+        await stlink._driver._stlink.set_debugreg32(FLASH_CR_REG, 0x00000210)
+
+        if (!await this.await_eop()) {
+            this._dbg.error("Error writing option bytes register. Please try again.");
+            return false;
+        }
+
+        await stlink._driver._stlink.set_mem16(0x1FFFF800, new Uint8Array([0xA5, 0x0]))
+        if (!await this.await_eop()) {
+            this._dbg.error("Error writing option bytes. Please try again.");
+            return false;
+        }
+
+        return true;
     }
 }
 

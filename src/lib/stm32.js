@@ -134,6 +134,10 @@ class Stm32 {
         return data;
     }
 
+    async set_mem_raw(addr, data) {
+        await this._stlink.set_mem32(addr, data);
+    }
+    
     async set_mem(addr, data) {
         this._dbg.debug(`Stm32.set_mem(0x${H32(addr)}, [data:${data.length}Bytes])`);
         if (data.length == 0) {

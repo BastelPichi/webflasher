@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="sakura-earthly.css" />
+    <title>Webflasher | DRV Images</title>
+    <style>
+      div.debug {
+        white-space: pre;
+      }
+      div.verbose {
+        white-space: pre;
+      }
+      div.info {
+        white-space: pre;
+      }
+      div.message {
+        white-space: pre;
+      }
+      div.error {
+        white-space: pre;
+        color: red;
+      }
+      div.warning {
+        white-space: pre;
+        color: red;
+      }
+      div.log {
+        min-height: 3em;
+        max-height: 10em;
+        font-family: monospace;
+        overflow-y:scroll;
+      }
+
+      div.registers {
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      span.register {
+        white-space: pre;
+        font-family: monospace;
+        flex: 1 0 27ch;
+        margin-left: 3ch;
+      }
+
+      span.register-updated {
+        font-weight: bold;
+      }
+    </style>
+    <script>
+      document.addEventListener("DOMContentLoaded", (event) => {
+        var query = window.location.search.substr(1);
+        var s = query.indexOf("scooter=");
+
+        if (s >= 0) {
+          switch (query.substring(s+8)) {
+            case "max":
+              document.getElementById("images").innerHTML = "<a href=\"/images/G30-DRV.png\"><img src=\"/images/G30-DRV.png\" width=\"300\"></a> <a href=\"/images/G30D-DRV.jpg\"><img src=\"/images/G30D-DRV.jpg\" width=\"250\"></a> <a href=\"/images/G30_AT32-DRV.png\"><img src=\"/images/G30_AT32-DRV.png\" width=\"300\"></a> ";
+              break;
+            case "g2":
+              document.getElementById("images").innerHTML = "<a href=\"/images/G2-F2-DRV.jpg\"><img src=\"/images/G2-F2-DRV.jpg\" width=\"400\"></a>";
+              break;
+            case "f":
+              document.getElementById("images").innerHTML = "<a href=\"/images/FD-Series-DRV.png\"><img src=\"/images/FD-Series-DRV.png\" width=\"400\"></a>";
+              break;
+            case "pro2":
+              document.getElementById("images").innerHTML = "<a href=\"/images/LITE_1S_MI3_PRO2-DRV.png\"><img src=\"/images/LITE_1S_MI3_PRO2-DRV.png\" width=\"400\"></a>";
+              break;
+            case "lite":
+              document.getElementById("images").innerHTML = "<a href=\"/images/LITE_1S_MI3_PRO2-DRV.png\"><img src=\"/images/LITE_1S_MI3_PRO2-DRV.png\" width=\"400\"></a>";
+              break;
+            case "1s":
+              document.getElementById("images").innerHTML = "<a href=\"/images/LITE_1S_MI3_PRO2-DRV.png\"><img src=\"/images/LITE_1S_MI3_PRO2-DRV.png\" width=\"400\"></a>";
+              break;
+            case "mi3":
+              document.getElementById("images").innerHTML = "<a href=\"/images/LITE_1S_MI3_PRO2-DRV.png\"><img src=\"/images/LITE_1S_MI3_PRO2-DRV.png\" width=\"400\"></a>";
+              break;
+            case "pro":
+              document.getElementById("images").innerHTML = "<a href=\"/images/M365_PRO-DRV.png\"><img src=\"/images/M365_PRO-DRV.png\" width=\"400\"></a>";
+              break;
+          }
+
+        }
+      });
+    </script>
+  </head>
+
+  <body>
+    <h3>
+      DRV Images
+    </h3>
+    <p>
+      Click on an Image to enlargen.
+    </p>
+    <div id="images">
+    </div>
+  </body>
+</html>

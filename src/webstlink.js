@@ -247,9 +247,7 @@ export default class WebStlink {
 
     async find_mcus_by_flash_size() {
         this._flash_size = await this._stlink.get_debugreg16(this._mcus_by_devid.flash_size_reg);
-        this._mcus = this._mcus_by_devid.devices.filter(
-            mcu => (mcu.flash_size == this._flash_size)
-        );
+        this._mcus = this._mcus_by_devid.devices
         if (this._mcus.length == 0) {
             throw new libstlink.exceptions.Exception(`Connected CPU with DEV_ID: 0x${H24(this._mcus_by_devid.dev_id)} and FLASH size: ${this._flash_size}KB is not supported`);
         }
@@ -325,7 +323,8 @@ export default class WebStlink {
                     this._sram_size = mcu.sram_size;
                     this._eeprom_size = mcu.eeprom_size;
                 } else {
-                    this._dbg.warning("Automatically choosing the MCU variant with the smallest flash and eeprom");
+                    this._dbg.warning("No Valid MCU found! Do you have an controller with clone MCU?");
+                    return;
                     this._mcu = this._mcus.find(m => (m.sram_size == this._sram_size));
                 }
             } else {
@@ -527,6 +526,14 @@ export default class WebStlink {
         } finally {
             this._mutex.unlock();
         }
+    }
+
+    async raw_mem(addr, data) {
+        await this._driver.flash_write(addr, data, {
+                erase: false,
+                verify: false,
+                erase_sizes: this._mcus_by_devid.erase_sizes
+            });
     }
 
     async flash(addr, data) {
