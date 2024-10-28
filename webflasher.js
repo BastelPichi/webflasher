@@ -331,7 +331,7 @@ function getScooterData(uid, sn, km) {
 
             await stlink.reset(true)
             if (!await stlink._driver.remove_rdp()) {
-                logger.error("Encountered an Error while removing RDP. Check the console for details.<br>Continuing for now.")
+                logger.error("Encountered an Error while removing RDP. If flashing completes successfully, theres no need to worry. (Check the console for details)")
             }
 
             await stlink.reset()
