@@ -1,7 +1,8 @@
 import * as libstlink from './src/lib/package.js';
 import WebStlink from './src/webstlink.js';
-import { hex_octet_array } from './src/lib/util.js';
 
+var nb_scooters = ["max", "g2", "f", "f2"];
+var mi_scooters = ["pro", "1s", "lite", "pro2", "mi3"];
 
 function read_file_as_array_buffer(file) {
     return new Promise(function (resolve, reject) {
@@ -52,9 +53,6 @@ async function pick_sram_variant(mcu_list) {
     for (let row of tbody.querySelectorAll("tr")) {
         tbody.removeChild(row);
     }
-
-    var nb_scooters = ["max", "g2"];
-    var mi_scooters = ["pro", "pro2"];
 
     var scooter = document.getElementById("scooter").value;
     var fake = document.getElementById("fake").checked
@@ -271,7 +269,7 @@ function getScooterData(uid, sn, km) {
             case "g2": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/g2/DRV/1.7.0%20(Compat).bin"; break;
             case "pro": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/pro/DRV/1.7.1.bin"; break;
             case "pro2": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/pro2/DRV/2.5.2.bin"; break;
-            
+            case "f2": url = "https://raw.githubusercontent.com/scooterhacking/firmware/64956bb2752a2d965a958706f996c6a4a9d75612/f2/DRV/1.4.15.bin"; break; 
         }
         return url
     }
@@ -309,9 +307,6 @@ function getScooterData(uid, sn, km) {
         }
 
         if (stlink !== null && stlink.connected) {
-            var nb_scooters = ["max", "g2", "f"];
-            var mi_scooters = ["pro", "1s", "lite", "pro2", "mi3"];
-        
             var scooter = document.getElementById("scooter").value;
             var fake = document.getElementById("fake").checked
 
