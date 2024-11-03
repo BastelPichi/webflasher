@@ -92,6 +92,33 @@
       #disclaimer-content h2 {
             margin-top: 0;
       }
+
+      #third-party-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+      }
+
+      #third-party-content {
+        max-width: 500px;
+        padding: 30px;
+        background-color: #c70f0f;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        text-align: center;
+        color: hsl(0, 0%, 100%);
+        font-size: 16px;
+      }
+
+      #hird-party-content h2 {
+            margin-top: 0;
+      }
     </style>
   </head>
 
@@ -110,6 +137,22 @@
       </div>
   </div>
 
+  <div id="third-party-overlay">
+    <div id="third-party-content">
+        <h2>WARNING!</h2>
+        <p>
+          You are loading a firmware binary from:<br>
+           <span id="third-url""></span>
+          <br>
+          A malicious firmware binary could not only IRREVERSIBILITY destroy your Scooter, but could even lead to you hurting yourself.
+          <br>
+          You continue completely on your own risk!<br>
+          WE CAN NOT VERIFY THIS FIRMWARE.
+        </p>
+        <button id="accept-third-party">I want to Continue</button>
+    </div>
+</div>
+
     <div id="input-section">
       SN: <input type="text" id="sn" placeholder="00000/00000000"><br>
       Odometer: <input type="number" id="km" placeholder="0" size="10"></input>km
@@ -124,6 +167,7 @@
         <option value="lite">Xiaomi Essential</option>
         <option value="pro2">Xiaomi Pro 2</option>
         <option value="mi3">Xiaomi Mi 3</option>
+        <option value="4pro">Xiaomi 4 Pro</option>
       </select> <a id="images">Images</a>
       <br>
       <input type="checkbox" id="fake"> Fake Chip (AT32/GD32)

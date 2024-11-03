@@ -1,8 +1,10 @@
 import * as libstlink from './src/lib/package.js';
 import WebStlink from './src/webstlink.js';
 
-var nb_scooters = ["max", "g2", "f", "f2"];
+var nb_scooters = ["max", "g2", "f", "f2", "4pro"]; // technically the 4 pro is Xiaomi. However as we use the NB Bootloader, we will consider it as NB.
 var mi_scooters = ["pro", "1s", "lite", "pro2", "mi3"];
+
+var userfw;
 
 function read_file_as_array_buffer(file) {
     return new Promise(function (resolve, reject) {
@@ -96,6 +98,26 @@ document.addEventListener('DOMContentLoaded', event => {
         document.getElementById("disclaimer-overlay").style.display = "none";
     });
 
+    document.getElementById("accept-third-party").addEventListener("click", async function() {
+        document.getElementById("third-party-overlay").style.display = "none";
+        userfw = await binFetch(url.href)
+    });
+
+    const params = new Proxy(new URLSearchParams(window.location.search), {
+        get: (searchParams, prop) => searchParams.get(prop),
+      });
+
+    if (params.firmware) {
+        var url = new URL(params.firmware)
+        console.log(url, url.protocol)
+        if (!["http:", "https:", "ftp:"].includes(url.protocol)) {
+            throw new Error("Invalid URL protocol");
+        }
+
+        document.getElementById("third-party-overlay").style.display = "flex";
+        document.getElementById("third-url").textContent = url.href.replace(/(.{70})/g,"$1\n")
+    }
+
     images.addEventListener('click', async function () {
         window.open("/images.html?scooter=" + scooterSelection.value, "_blank").focus();
     })
@@ -150,97 +172,59 @@ document.addEventListener('DOMContentLoaded', event => {
     }
 
 
-function getScooterData(uid, sn, km) {
-            const scooterData = new Uint8Array([
-                0x5C, 0x51, 0xEE, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x08, 0x00, 0x08, 0x00, 0x08, 0x31, 0x33, 0x36, 0x37,
-                0x38, 0x2F, 0x30, 0x30, 0x31, 0x31, 0x30, 0x30, 0x32, 0x39, 0x30, 0x30,
-                0x30, 0x30, 0x30, 0x30, 0x34, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x20, 0x4E, 0x10, 0x27, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x78, 0x56, 0x34, 0x12, 0xF0, 0xDE, 0xBC, 0x9A,
-                0x78, 0x56, 0x34, 0x12, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-            ]);
+    async function getScooterData(uid, sn, km, scooter) {
+        const snBytes = new TextEncoder().encode(sn);
 
-            const snBytes = new TextEncoder().encode(sn);
+        var scooterData;
+        if (scooter == "4pro") {
+            scooterData = await binFetch("/bin/data/4pro")
+            scooterData.set(snBytes, 0xa8);
+        } else {
+            scooterData = await binFetch("/bin/data/default")
             scooterData.set(snBytes, 0x20);
-
-            scooterData.set(uid[0], 0x1b4);
-            scooterData.set(uid[1], 0x1b8);
-            scooterData.set(uid[2], 0x1bc);
-
-            // Insert km (converted to bytes)
-            const kmBytes = wordToBytes(Math.floor(km * 1000));
-            scooterData.set(kmBytes, 0x52);
-
-            return scooterData;
         }
 
-        function createFullDump(bootloader, drv, scooterData, nb) {
-            var dataOffset = 0xF800
-            if (nb) {
-                dataOffset = 0x1C000
-            }
+        scooterData.set(uid[0], 0x1b4);
+        scooterData.set(uid[1], 0x1b8);
+        scooterData.set(uid[2], 0x1bc);
 
-            const fullDump = new Uint8Array(dataOffset + scooterData.length);
+        // Insert km (converted to bytes)
+        const kmBytes = wordToBytes(Math.floor(km * 1000));
+        scooterData.set(kmBytes, 0x52);
 
+        return scooterData;
+    }
 
-
-            fullDump.set(bootloader, 0x0);
-
-            fullDump.set(drv, 0x1000); 
-            fullDump.set(scooterData, dataOffset);
-
-            return fullDump;
+    function createFullDump(bootloader, drv, scooterData, nb) {
+        var dataOffset = 0xF800
+        if (nb) {
+            dataOffset = 0x1C000
         }
 
-            function wordToBytes(word) {
-            const bytes = new Uint8Array(4);
-            bytes[0] = word & 0xFF;
-            bytes[1] = (word >> 8) & 0xFF;
-            bytes[2] = (word >> 16) & 0xFF;
-            bytes[3] = (word >> 24) & 0xFF;
-            return bytes;
-        }
+        const fullDump = new Uint8Array(dataOffset + scooterData.length);
+
+
+
+        fullDump.set(bootloader, 0x0);
+
+        fullDump.set(drv, 0x1000); 
+        fullDump.set(scooterData, dataOffset);
+
+        return fullDump;
+    }
+
+    function wordToBytes(word) {
+        const bytes = new Uint8Array(4);
+        bytes[0] = word & 0xFF;
+        bytes[1] = (word >> 8) & 0xFF;
+        bytes[2] = (word >> 16) & 0xFF;
+        bytes[3] = (word >> 24) & 0xFF;
+        return bytes;
+    }
 
     function getBootloader(fake, nb) {
-        var bootloader = "/bootloader/"
-        
+        var bootloader = "/bin/bootloader/"
+            
         if (nb) {
             if (fake) {
                 bootloader += "nb_DRV_AT32.bin"
@@ -257,9 +241,10 @@ function getScooterData(uid, sn, km) {
 
         return bootloader
     }
-    
+        
     function getDrv(scooter) {
         var url = ""
+
         switch (scooter) {
             case "1s": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/1s/DRV/3.1.9%20(Downgrade).bin"; break;
             case "f": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/f/DRV/5.4.9.bin"; break;
@@ -270,6 +255,7 @@ function getScooterData(uid, sn, km) {
             case "g2": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/g2/DRV/1.7.0%20(Compat).bin"; break;
             case "pro": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/pro/DRV/1.7.1.bin"; break;
             case "pro2": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/pro2/DRV/2.5.2.bin"; break;
+            case "4pro": url = "https://raw.githubusercontent.com/CamiAlfa/m365-Electric-Scooter-4-Pro-stlink/refs/heads/main/EC_ESC_Driver_V0.2.2_mod.bin"; break;
         }
         return url
     }
@@ -292,13 +278,13 @@ function getScooterData(uid, sn, km) {
 
     async function startFlashing(device) {
         let next_stlink = new WebStlink(logger);
-        
+            
         try {
             await next_stlink.attach(device, logger);
         } catch (error) {
             logger.error("Couldn't connect to MCU. Check your connections.")
         }
-            
+                
         stlink = next_stlink;
         curr_device = device;
 
@@ -330,10 +316,10 @@ function getScooterData(uid, sn, km) {
             }
 
             await stlink.reset()
-            
+                
             logger.info("Reading UID from Controller...")
             let memory = await stlink.read_memory(0x1FFFF7E8, 12);
-            
+                
             var uid = [
                     new Uint8Array(Array.from(memory.slice(0, 4)).reverse()),
                     new Uint8Array(Array.from(memory.slice(4, 8)).reverse()),
@@ -344,13 +330,26 @@ function getScooterData(uid, sn, km) {
             if (sn == "") {
                 sn = "00000/000000000"
             }
-            const scooterData = getScooterData(uid, sn, parseInt(document.getElementById("km"), 10));
+            const scooterData = await getScooterData(uid, sn, parseInt(document.getElementById("km"), 10), scooter);
 
             var bootloader = await binFetch(getBootloader(fake, nb))
-            var drv = await binFetch(getDrv(scooter))
 
-            const fullDump = createFullDump(bootloader, drv, scooterData, scooter, fake);
+            var drv = userfw;
             
+            if (!drv) {
+                var url = getDrv(scooter)
+
+                if (!url) {
+                    await stlink.detach();
+                    on_disconnect();
+                    return;
+                }
+
+                drv = await binFetch()
+            }
+
+            const fullDump = createFullDump(bootloader, drv, scooterData, nb);
+                
             try {
                 await stlink.flash(0x8000000, fullDump);
             } catch {
@@ -359,16 +358,14 @@ function getScooterData(uid, sn, km) {
 
             await stlink.reset()
 
-            logger.info("Flashed Successfully");
+            logger.info("Flashing Done");
 
             if (stlink !== null)
             await stlink.detach();
             on_disconnect();
-        
-
+            }
         }
-    }
-    
+        
     async function on_successful_attach(stlink, device) {
         // Export for manual debugging
         window.stlink = stlink;
@@ -398,7 +395,7 @@ function getScooterData(uid, sn, km) {
 
     function on_disconnect() {
         logger.info("Device disconnected");
-        
+            
         stlink = null;
         curr_device = null;
     }
