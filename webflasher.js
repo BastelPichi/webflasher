@@ -345,7 +345,7 @@ document.addEventListener('DOMContentLoaded', event => {
                     return;
                 }
 
-                drv = await binFetch()
+                drv = await binFetch(url)
             }
 
             const fullDump = createFullDump(bootloader, drv, scooterData, nb);
