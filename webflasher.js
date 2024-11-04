@@ -1,7 +1,7 @@
 import * as libstlink from './src/lib/package.js';
 import WebStlink from './src/webstlink.js';
 
-var nb_scooters = ["max", "g2", "f", "f2", "4pro"]; // technically the 4 pro is Xiaomi. However as we use the NB Bootloader, we will consider it as NB.
+var nb_scooters = ["esx", "max", "g2", "f", "f2", "4pro"]; // technically the 4 pro is Xiaomi. However as we use the NB Bootloader, we will consider it as NB.
 var mi_scooters = ["pro", "1s", "lite", "pro2", "mi3"];
 
 var userfw;
@@ -246,6 +246,7 @@ document.addEventListener('DOMContentLoaded', event => {
         var url = ""
 
         switch (scooter) {
+            case "esx": url = "https://raw.githubusercontent.com/scooterhacking/firmwareESX_E-DRV.png/master/esx/DRV/1.6.4.bin"; break;
             case "1s": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/1s/DRV/3.1.9%20(Downgrade).bin"; break;
             case "f": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/f/DRV/5.4.9.bin"; break;
             case "f2": url = "https://raw.githubusercontent.com/scooterhacking/firmware/64956bb2752a2d965a958706f996c6a4a9d75612/f2/DRV/1.4.15.bin"; break; 
