@@ -43,4 +43,20 @@ export default [
             },
         ],
     },
+    {
+        'part_no': 0xc20,
+        'core': 'CortexM0',
+        'idcode_reg': 0x40015800,
+        'devices': [
+            {
+                'dev_id': 0x00,
+                'flash_size_reg': 0x10000014,
+                'flash_driver': 'NRF51',
+                'erase_sizes': [1024],
+                'devices': [
+                    {'type': 'NRF51', 'flash_size':   256, 'sram_size':   16, 'eeprom_size':  0, 'freq':  48},
+                ],
+            },
+        ],
+    },
 ];

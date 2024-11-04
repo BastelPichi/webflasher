@@ -119,6 +119,10 @@
       #hird-party-content h2 {
             margin-top: 0;
       }
+
+      #sn-span, #odo-span {
+        display: block;
+      }
     </style>
   </head>
 
@@ -154,9 +158,12 @@
 </div>
 
     <div id="input-section">
-      SN: <input type="text" id="sn" placeholder="00000/00000000"><br>
-      Odometer: <input type="number" id="km" placeholder="0" size="10"></input>km
-      <br>
+      Target: <select id="target">
+        <option value="drv">DRV</option>
+        <option value="ble">BLE</option>
+      </select> <br>
+      <span id="sn-span">SN: <input type="text" id="sn" placeholder="00000/00000000"><br></span>
+      <span id="odo-span">Odometer: <input type="number" id="km" placeholder="0" size="10"></input>km</span>
       Select Scooter: <select id="scooter">
         <option value="max">Ninebot G30</option>
         <option value="g2">Ninebot G2</option>
@@ -171,7 +178,7 @@
         <option value="4pro">Xiaomi 4 Pro</option>
       </select> <a id="images">Images</a>
       <br>
-      <input type="checkbox" id="fake"> Fake Chip (AT32/GD32)
+      <input type="checkbox" id="fake"> Fake Chip (AT32/GD32/NRF5102)
     </div>
 
     <p>

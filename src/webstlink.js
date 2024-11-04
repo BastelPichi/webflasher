@@ -77,10 +77,11 @@ class TargetCache {
 }
 
 export default class WebStlink {
-    constructor(dbg = null) {
+    constructor(dbg = null, nrf=false) {
         this._stlink = null;
         this._driver = null;
         this._dbg = dbg;
+        this._nrf = nrf
         this._mcu = null;
         this._mutex = new Mutex;
         this._callbacks = {
@@ -132,7 +133,9 @@ export default class WebStlink {
         }
 
         // Run callbacks without waiting to avoid deadlock
-        run_callbacks(this._callbacks[name].slice(0));
+        if (!this._nrf) {
+            run_callbacks(this._callbacks[name].slice(0));
+        }
     }
 
     async attach(device, device_dbg = null) {
@@ -344,6 +347,8 @@ export default class WebStlink {
         let flash_driver = this._mcus_by_devid.flash_driver;
         if (flash_driver == "STM32FP") {
             this._driver = new libstlink.drivers.Stm32FP(this._stlink, this._dbg);
+        }  else if (flash_driver == "NRF51") {
+            this._driver = new libstlink.drivers.NRF51(this._stlink, this._dbg);
         } else if (flash_driver == "STM32FPXL") {
             this._driver = new libstlink.drivers.Stm32FPXL(this._stlink, this._dbg);
         } else if (flash_driver == "STM32FS") {
@@ -398,12 +403,15 @@ export default class WebStlink {
 
     async _unsafe_inspect_cpu(flush = false) {
         let dhcsr = await this._driver.core_status();
-        let lockup = (dhcsr & libstlink.drivers.Stm32.DHCSR_STATUS_LOCKUP_BIT) != 0;
-        if (lockup) {
-            this._dbg.verbose("Clearing lockup");
-            await this._driver.core_halt();
-            dhcsr = await this._driver.core_status();
+        if (!this._nrf) {
+            let lockup = (dhcsr & libstlink.drivers.Stm32.DHCSR_STATUS_LOCKUP_BIT) != 0;
+            if (lockup) {
+                this._dbg.verbose("Clearing lockup");
+                await this._driver.core_halt();
+                dhcsr = await this._driver.core_status();
+            }
         }
+        
         let status = {
             halted: (dhcsr & libstlink.drivers.Stm32.DHCSR_STATUS_HALT_BIT) != 0,
             debug:  (dhcsr & libstlink.drivers.Stm32.DHCSR_DEBUGEN_BIT) != 0,

@@ -5,6 +5,7 @@ var nb_scooters = ["esx", "max", "g2", "f", "f2", "4pro"]; // technically the 4 
 var mi_scooters = ["pro", "1s", "lite", "pro2", "mi3"];
 
 var userfw;
+var ble = false;
 
 function read_file_as_array_buffer(file) {
     return new Promise(function (resolve, reject) {
@@ -92,7 +93,7 @@ document.addEventListener('DOMContentLoaded', event => {
     let flashButton = document.querySelector("#flashButton");
     let countdownButton = document.querySelector("#countdownButton");
     let scooterSelection = document.querySelector("#scooter");
-
+    let targetElm = document.getElementById("target")
 
     document.getElementById("accept").addEventListener("click", function() {
         document.getElementById("disclaimer-overlay").style.display = "none";
@@ -102,6 +103,25 @@ document.addEventListener('DOMContentLoaded', event => {
         document.getElementById("third-party-overlay").style.display = "none";
         userfw = await binFetch(url.href)
     });
+
+    targetElm.addEventListener("change", event => {
+        if (targetElm.value == "ble") {
+            ble = true;
+            document.getElementById("sn-span").style.display = "none"
+            document.getElementById("odo-span").style.display = "none"
+            console.log(scooterSelection)
+            for (var i=0; i<scooterSelection.length; i++) {
+                console.log(scooterSelection.options[i].value)
+                if (scooterSelection.options[i].value != "pro")
+                    scooterSelection.remove(i)
+            }
+        } else {
+            ble = false;
+            location.reload()
+            document.getElementById("sn-span").style.display = "block"
+            document.getElementById("odo-span").style.display = "block"
+        }
+    })
 
     const params = new Proxy(new URLSearchParams(window.location.search), {
         get: (searchParams, prop) => searchParams.get(prop),
@@ -131,7 +151,7 @@ document.addEventListener('DOMContentLoaded', event => {
     flashButton.addEventListener('click', async function() {
         var device = await requestStlink();
         if (!device) { return; }
-        startFlashing(device)
+        startFlashing(device, ble)
     });
 
     countdownButton.addEventListener('click', async function() {
@@ -146,7 +166,7 @@ document.addEventListener('DOMContentLoaded', event => {
         
             if (countdown < 0) {
                 clearInterval(cDown);
-                startFlashing(device);
+                startFlashing(device, ble);
             }
         }, 1000);
 
@@ -246,7 +266,7 @@ document.addEventListener('DOMContentLoaded', event => {
         var url = ""
 
         switch (scooter) {
-            case "esx": url = "https://raw.githubusercontent.com/scooterhacking/firmwareESX_E-DRV.png/master/esx/DRV/1.6.4.bin"; break;
+            case "esx": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/esx/DRV/1.6.4.bin"; break;
             case "1s": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/1s/DRV/3.1.9%20(Downgrade).bin"; break;
             case "f": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/f/DRV/5.4.9.bin"; break;
             case "f2": url = "https://raw.githubusercontent.com/scooterhacking/firmware/64956bb2752a2d965a958706f996c6a4a9d75612/f2/DRV/1.4.15.bin"; break; 
@@ -277,8 +297,43 @@ document.addEventListener('DOMContentLoaded', event => {
         }
     }
 
-    async function startFlashing(device) {
-        let next_stlink = new WebStlink(logger);
+    async function nvmc_ready() {
+        for (var i=0; i < 200; i++) {
+            if (await stlink._driver._stlink.get_debugreg32(0x4001e400) == 0x01) {
+                return true;
+            } else {
+            }
+        }
+        return false;
+    }
+    
+    // this doesnt belong here. Do I care? No.
+    async function nvmc_ready() {
+        for (var i=0; i < 200; i++) {
+            if (await stlink._driver._stlink.get_debugreg32(0x4001e400) == 0x01) {
+                return true;
+            } else {
+            }
+        }
+        return false;
+    }
+
+    async function flash_nrf(array, offset=0) {
+        if (array.length % 4 !== 0) {
+            throw new Error("Array length must be a multiple of 4 for 32-bit words.");
+          }
+        
+          for (let i = 0; i < array.length; i += 1024) {
+            let byteChunk = array.subarray(i, i + 1024);
+        
+			//console.log(byteChunk, i)
+            await stlink._driver._stlink.set_mem32(offset+i, byteChunk);
+            await nvmc_ready();
+          }
+    }
+
+    async function startFlashing(device, ble) {
+        let next_stlink = new WebStlink(logger, false);
             
         try {
             await next_stlink.attach(device, logger);
@@ -311,61 +366,93 @@ document.addEventListener('DOMContentLoaded', event => {
                 }
             }
 
+            if (ble) {
+                chip = "NRF51"
+            }
+
             await stlink.reset(true)
-            if (!await stlink._driver.remove_rdp()) {
-                logger.error("Encountered an Error while removing RDP. If flashing completes successfully, theres no need to worry. (Check the console for details)")
-            }
 
-            await stlink.reset()
-                
-            logger.info("Reading UID from Controller...")
-            let memory = await stlink.read_memory(0x1FFFF7E8, 12);
-                
-            var uid = [
-                    new Uint8Array(Array.from(memory.slice(0, 4)).reverse()),
-                    new Uint8Array(Array.from(memory.slice(4, 8)).reverse()),
-                    new Uint8Array(Array.from(memory.slice(8, 12)).reverse())
-            ]
-
-            var sn = document.getElementById("sn")
-            if (sn == "") {
-                sn = "00000/000000000"
-            }
-            const scooterData = await getScooterData(uid, sn, parseInt(document.getElementById("km"), 10), scooter);
-
-            var bootloader = await binFetch(getBootloader(fake, nb))
-
-            var drv = userfw;
-            
-            if (!drv) {
-                var url = getDrv(scooter)
-
-                if (!url) {
-                    await stlink.detach();
-                    on_disconnect();
-                    return;
+            if (!ble) {
+                if (!await stlink._driver.remove_rdp()) {
+                    logger.error("Encountered an Error while removing RDP. If flashing completes successfully, theres no need to worry. (Check the console for details)")
                 }
 
-                drv = await binFetch(url)
-            }
+                await stlink.reset()
+                    
+                logger.info("Reading UID from Controller...")
+                let memory = await stlink.read_memory(0x1FFFF7E8, 12);
+                    
+                var uid = [
+                        new Uint8Array(Array.from(memory.slice(0, 4)).reverse()),
+                        new Uint8Array(Array.from(memory.slice(4, 8)).reverse()),
+                        new Uint8Array(Array.from(memory.slice(8, 12)).reverse())
+                ]
 
-            const fullDump = createFullDump(bootloader, drv, scooterData, nb);
+                var sn = document.getElementById("sn")
+                if (sn == "") {
+                    sn = "00000/000000000"
+                }
+                const scooterData = await getScooterData(uid, sn, parseInt(document.getElementById("km"), 10), scooter);
+
+                var bootloader = await binFetch(getBootloader(fake, nb))
+
+                var drv = userfw;
                 
-            try {
-                await stlink.flash(0x8000000, fullDump);
-            } catch {
-                logger.error("Flashing failed. Please try again.")
-            }
+                if (!drv) {
+                    var url = getDrv(scooter)
 
-            await stlink.reset()
+                    if (!url) {
+                        await stlink.detach();
+                        on_disconnect();
+                        return;
+                    }
 
-            logger.info("Flashing Done");
+                    drv = await binFetch(url)
+                }
 
-            if (stlink !== null)
-            await stlink.detach();
-            on_disconnect();
+                const fullDump = createFullDump(bootloader, drv, scooterData, nb);
+                    
+                try {
+                    await stlink.flash(0x8000000, fullDump);
+                } catch {
+                    logger.error("Flashing failed. Please try again.")
+                }
+
+                await stlink.reset()
+
+                logger.info("Flashing Done");
+
+                if (stlink !== null)
+                await stlink.detach();
+                on_disconnect();
+            } else {
+                logger.info("Erasing...")
+            
+                await stlink._driver._stlink.set_debugreg32(0x4001e504, 0x02) // enable erase
+                if (!await nvmc_ready()) { return false; }
+                await stlink._driver._stlink.set_debugreg32(0x4001e50c, 0x01) // erase all
+                if (!await nvmc_ready()) { return false; }
+
+                await stlink._driver._stlink.set_debugreg32(0x4001e504, 0x01) // enable write
+                await stlink.reset(true)
+
+                logger.info("Flashing...")
+                await stlink._driver._stlink.set_debugreg32(0x4001e504, 0x01)
+                await nvmc_ready();
+
+                var array = await binFetch("https://raw.githubusercontent.com/BastelPichi/temp/refs/heads/main/soft")
+                await flash_nrf(array)        
+
+                var array = await binFetch("https://raw.githubusercontent.com/scooterhacking/firmware/master/pro/BLE/0.9.0.bin")
+                await flash_nrf(array, 0x18000)
+                
+                var array = await binFetch("https://raw.githubusercontent.com/BastelPichi/temp/refs/heads/main/boot")
+                flash_nrf(array, 0x3C000)
+
+                logger.info("Done!")
             }
         }
+    }
         
     async function on_successful_attach(stlink, device) {
         // Export for manual debugging

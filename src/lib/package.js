@@ -16,12 +16,14 @@ import * as semihosting from './semihosting.js';
 import { Stm32 } from './stm32.js';
 import { Stm32FP, Stm32FPXL } from './stm32fp.js';
 import { Stm32FS } from './stm32fs.js';
+import { NRF51 } from './nrf51.js';
 
 let drivers = {
     Stm32: Stm32,
     Stm32FP: Stm32FP,
     Stm32FPXL: Stm32FPXL,
-    Stm32FS: Stm32FS
+    Stm32FS: Stm32FS,
+    NRF51: NRF51
 };
 
 export { exceptions, usb, drivers, Stlinkv2, Logger, DEVICES, semihosting };
