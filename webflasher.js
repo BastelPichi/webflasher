@@ -109,12 +109,6 @@ document.addEventListener('DOMContentLoaded', event => {
             ble = true;
             document.getElementById("sn-span").style.display = "none"
             document.getElementById("odo-span").style.display = "none"
-            console.log(scooterSelection)
-            for (var i=0; i<scooterSelection.length; i++) {
-                console.log(scooterSelection.options[i].value)
-                if (scooterSelection.options[i].value != "pro")
-                    scooterSelection.remove(i)
-            }
         } else {
             ble = false;
             location.reload()
@@ -262,6 +256,25 @@ document.addEventListener('DOMContentLoaded', event => {
         return bootloader
     }
         
+    function getBle(scooter) {
+        var url = ""
+
+        switch (scooter) {
+            case "esx": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/esx/BLE/1.1.0.bin"; break;
+            case "1s": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/1s/BLE/1.3.4.bin"; break;
+            case "f": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/f/BLE/3.0.7.bin"; break;
+            case "f2": url = "https://raw.githubusercontent.com/scooterhacking/firmware/828c25e06e098a9f55b9c6a57a18c0b474706285/f2/BLE/5.6.6.bin"; break; 
+            case "lite": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/lite/BLE/1.3.4.bin"; break;
+            case "mi3": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/mi3/BLE/1.5.2.bin"; break;
+            case "max": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/max/BLE/1.1.7.bin"; break;
+            case "g2": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/g2/BLE/1.7.8.bin"; break;
+            case "pro": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/pro/BLE/0.9.0.bin"; break;
+            case "pro2": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/pro2/BLE/1.3.6.bin"; break;
+            case "4pro": url = "https://raw.githubusercontent.com/CamiAlfa/m365-Electric-Scooter-4-Pro-stlink/refs/heads/main/EC_ESC_Driver_V0.2.2_mod.bin"; break;
+        }
+        return url
+    }
+
     function getDrv(scooter) {
         var url = ""
 
@@ -440,14 +453,40 @@ document.addEventListener('DOMContentLoaded', event => {
                 await stlink._driver._stlink.set_debugreg32(0x4001e504, 0x01)
                 await nvmc_ready();
 
-                var array = await binFetch("https://raw.githubusercontent.com/BastelPichi/temp/refs/heads/main/soft")
-                await flash_nrf(array)        
+                var v2 = false;
+                if (scooter in ["pro2", "1s", "lite", "mi3"]) {
+                    v2 = true;
+                }
 
-                var array = await binFetch("https://raw.githubusercontent.com/scooterhacking/firmware/master/pro/BLE/0.9.0.bin")
-                await flash_nrf(array, 0x18000)
+                var fw_addr = 0x1B000;
+                if (fake || !v2) {
+                    fw_addr = 0x18000
+                }
+
+
+                var boot = new Uint8Array()
+                var boot_adress = 0x3C000
+                if (v2) {
+                    array = await binFetch("/bin/bootloader/mi_BLE_V2.bin")
+                    boot = await binFetch("/bin/bootloader/boot-32k")
+                    boot_adress = 0x3D000
+                } else if (nb) {
+                    array = await binFetch("/bin/bootloader/nb_BLE.bin")
+                    boot = await binFetch("/bin/bootloader/boot-16k")
+                } else {
+                    array = await binFetch("/bin/bootloader/mi_BLE.bin")
+                    boot = await binFetch("/bin/bootloader/boot-16k")
+                }
                 
-                var array = await binFetch("https://raw.githubusercontent.com/BastelPichi/temp/refs/heads/main/boot")
-                flash_nrf(array, 0x3C000)
+                await flash_nrf(array)
+
+                var array = await binFetch(getBle(scooter))
+                await flash_nrf(array, fw_addr)
+                
+                flash_nrf(boot, boot_adress)
+
+                //await stlink._driver._stlink.set_mem32(0x10001014, new Uint8Array([0x00, 0xC0, 0x03, 0x0]))
+                await nvmc_ready()
 
                 logger.info("Done!")
             }
