@@ -306,7 +306,7 @@ document.addEventListener('DOMContentLoaded', event => {
             return device;
         } catch (err) {
             if (err.name == "NotFoundError") {
-                logger.error("Error: Not Found. ")
+                logger.error("Error: No STLink selected. ")
                 return;
             }
             logger.error(err);
@@ -542,8 +542,8 @@ document.addEventListener('DOMContentLoaded', event => {
         curr_device = null;
     }
 
-    if (navigator.userAgent.match(/SamsungBrowser/i)) {
-        logger.error("Samsung Internet is not supported. Please use Chrome.");
+    if (navigator.userAgent.match(/SamsungBrowser/i) || (navigator.userAgent.includes("Android") && navigator.userAgent.includes("OPR"))) {
+        logger.error("Samsung Internet/Opera Mobile is not supported. Please use Chrome.");
         flashButton.disabled = true;
         countdownButton.disabled = true;
     }

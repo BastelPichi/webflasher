@@ -146,7 +146,12 @@ export default class WebStlink {
             try {
                 await connector.connect();
                 try {
-                    await stlink.init();
+                    if (this._nrf) {
+                        await stlink.init(5000);
+                    } else {
+                        await stlink.init();
+                    }
+                    
                 } catch (e) {
                     try {
                         await stlink.clean_exit();
