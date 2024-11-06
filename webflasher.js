@@ -89,10 +89,12 @@ document.addEventListener('DOMContentLoaded', event => {
     let log = document.querySelector("#log");
     let logger = new libstlink.Logger(1, log);
     
-    let images = document.querySelector("#images")
+    let imagesDrv = document.querySelector("#images-drv")
+    let imagesBle = document.querySelector("#images-ble")
     let flashButton = document.querySelector("#flashButton");
     let countdownButton = document.querySelector("#countdownButton");
-    let scooterSelection = document.querySelector("#scooter");
+    let scooterSelectionBle = document.querySelector("#ble-scooter");
+    let scooterSelectionDrv = document.querySelector("#drv-scooter");
     let targetElm = document.getElementById("target")
 
     document.getElementById("accept").addEventListener("click", function() {
@@ -107,13 +109,10 @@ document.addEventListener('DOMContentLoaded', event => {
     targetElm.addEventListener("change", event => {
         if (targetElm.value == "ble") {
             ble = true;
-            document.getElementById("sn-span").style.display = "none"
-            document.getElementById("odo-span").style.display = "none"
+            document.getElementById("drv-input").style.display = "none"
+            document.getElementById("ble-input").style.display = "block"
         } else {
-            ble = false;
             location.reload()
-            document.getElementById("sn-span").style.display = "block"
-            document.getElementById("odo-span").style.display = "block"
         }
     })
 
@@ -132,12 +131,16 @@ document.addEventListener('DOMContentLoaded', event => {
         document.getElementById("third-url").textContent = url.href.replace(/(.{70})/g,"$1\n")
     }
 
-    images.addEventListener('click', async function () {
-        window.open("/images.html?scooter=" + scooterSelection.value, "_blank").focus();
+    imagesDrv.addEventListener('click', async function () {
+        window.open("/images.html?t=drv&scooter=" + scooterSelectionDrv.value, "_blank").focus();
     })
 
-    scooterSelection.addEventListener("change", event => {
-        if (scooterSelection.value == "g2") {
+    imagesBle.addEventListener('click', async function () {
+        window.open("/images.html?t=ble&scooter=" + scooterSelectionBle.value, "_blank").focus();
+    })
+
+    scooterSelectionDrv.addEventListener("change", event => {
+        if (scooterSelectionDrv.value == "g2") {
             document.getElementById("fake").checked = true
         }
     })
@@ -363,7 +366,12 @@ document.addEventListener('DOMContentLoaded', event => {
         }
 
         if (stlink !== null && stlink.connected) {
-            var scooter = document.getElementById("scooter").value;
+            var scooter = scooterSelectionDrv.value;
+
+            if (ble) {
+                scooter = scooterSelectionBle.value;
+            }
+
             var fake = document.getElementById("fake").checked
 
             var nb = false

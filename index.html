@@ -33,22 +33,6 @@
         overflow-y:scroll;
       }
 
-      div.registers {
-        display: flex;
-        flex-wrap: wrap;
-      }
-      
-      span.register {
-        white-space: pre;
-        font-family: monospace;
-        flex: 1 0 27ch;
-        margin-left: 3ch;
-      }
-
-      span.register-updated {
-        font-weight: bold;
-      }
-
       footer {
         position: fixed;
         left: 0;
@@ -64,7 +48,6 @@
       #input-section {
         padding-top: 4%;
       }
-
 
       #disclaimer-overlay {
         position: fixed;
@@ -123,6 +106,10 @@
       #sn-span, #odo-span {
         display: block;
       }
+
+      #ble-input {
+        display: none;
+      }
     </style>
   </head>
 
@@ -161,23 +148,38 @@
       Target: <select id="target">
         <option value="drv">DRV</option>
         <option value="ble">BLE</option>
-      </select> <br>
-      <span id="sn-span">SN: <input type="text" id="sn" placeholder="00000/00000000"><br></span>
-      <span id="odo-span">Odometer: <input type="number" id="km" placeholder="0" size="10"></input>km</span>
-      Select Scooter: <select id="scooter">
-        <option value="max">Ninebot G30</option>
-        <option value="g2">Ninebot G2</option>
-        <option value="f">Ninebot Fxx</option>
-        <option value="f2">Ninebot F2 (Pro/Plus)</option>
-        <option value="esx">Ninebot ESx</option>
-        <option value="pro">Xiaomi Pro</option>
-        <option value="1s">Xiaomi 1s</option>
-        <option value="lite">Xiaomi Essential</option>
-        <option value="pro2">Xiaomi Pro 2</option>
-        <option value="mi3">Xiaomi Mi 3</option>
-        <option value="4pro">Xiaomi 4 Pro</option>
-      </select> <a id="images">Images</a>
-      <br>
+      </select>
+      
+      <div id="drv-input">
+        SN: <input type="text" id="sn" placeholder="00000/00000000"><br>
+        Odometer: <input type="number" id="km" placeholder="0" size="10"></input>km<br>
+        Select Scooter: <select id="drv-scooter">
+          <option value="max">Ninebot G30</option>
+          <option value="g2">Ninebot G2</option>
+          <option value="f">Ninebot Fxx</option>
+          <option value="f2">Ninebot F2 (Pro/Plus)</option>
+          <option value="esx">Ninebot ESx</option>
+          <option value="pro">Xiaomi Pro</option>
+          <option value="1s">Xiaomi 1s</option>
+          <option value="lite">Xiaomi Essential</option>
+          <option value="pro2">Xiaomi Pro 2</option>
+          <option value="mi3">Xiaomi Mi 3</option>
+          <option value="4pro">Xiaomi 4 Pro</option>
+        </select> <a id="images-drv">Images</a>
+      </div>
+      <div id="ble-input">
+        <span id="odo-span">Bluetooth Name: <input type="text" id="flash-name" placeholder="MIScooter0000" size="10"></input>km</span>
+        Select Scooter: <select id="ble-scooter">
+          <option value="max">Ninebot G30</option>
+          <option value="f">Ninebot Fxx</option>
+          <option value="esx">Ninebot ESx</option>
+          <option value="pro">Xiaomi Pro</option>
+          <option value="1s">Xiaomi 1s</option>
+          <option value="lite">Xiaomi Essential</option>
+          <option value="pro2">Xiaomi Pro 2</option>
+          <option value="mi3">Xiaomi Mi 3</option>
+        </select> <a id="images-ble">Images</a>
+      </div>
       <input type="checkbox" id="fake"> Fake Chip (AT32/GD32/NRF5102)
     </div>
 
