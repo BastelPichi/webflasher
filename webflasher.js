@@ -269,7 +269,7 @@ document.addEventListener('DOMContentLoaded', event => {
             case "max": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/max/BLE/1.1.7.bin"; break;
             case "g2": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/g2/BLE/1.7.8.bin"; break;
             case "pro": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/pro/BLE/0.9.0.bin"; break;
-            case "pro2": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/pro2/BLE/1.3.6.bin"; break;
+            case "pro2": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/pro2/BLE/1.2.9.bin"; break;
             case "4pro": url = "https://raw.githubusercontent.com/CamiAlfa/m365-Electric-Scooter-4-Pro-stlink/refs/heads/main/EC_ESC_Driver_V0.2.2_mod.bin"; break;
         }
         return url
@@ -302,7 +302,8 @@ document.addEventListener('DOMContentLoaded', event => {
             logger.clear();
             return device;
         } catch (err) {
-            if (err instanceof NotFoundError) {
+            if (err.name == "NotFoundError") {
+                logger.error("Error: Not Found. ")
                 return;
             }
             logger.error(err);
@@ -470,12 +471,21 @@ document.addEventListener('DOMContentLoaded', event => {
                     array = await binFetch("/bin/bootloader/mi_BLE_V2.bin")
                     boot = await binFetch("/bin/bootloader/boot-32k")
                     boot_adress = 0x3D000
+
+                    await stlink._driver._stlink.set_mem32(0x10001014, new Uint8Array([0x00, 0xD0, 0x03, 0x0]))
+                    await nvmc_ready()
                 } else if (nb) {
                     array = await binFetch("/bin/bootloader/nb_BLE.bin")
                     boot = await binFetch("/bin/bootloader/boot-16k")
+
+                    await stlink._driver._stlink.set_mem32(0x10001014, new Uint8Array([0x00, 0xD0, 0x03, 0x0]))
+                    await nvmc_ready()
                 } else {
                     array = await binFetch("/bin/bootloader/mi_BLE.bin")
                     boot = await binFetch("/bin/bootloader/boot-16k")
+
+                    await stlink._driver._stlink.set_mem32(0x10001014, new Uint8Array([0x00, 0xC0, 0x03, 0x0]))
+                    await nvmc_ready()
                 }
                 
                 await flash_nrf(array)
@@ -484,9 +494,6 @@ document.addEventListener('DOMContentLoaded', event => {
                 await flash_nrf(array, fw_addr)
                 
                 flash_nrf(boot, boot_adress)
-
-                //await stlink._driver._stlink.set_mem32(0x10001014, new Uint8Array([0x00, 0xC0, 0x03, 0x0]))
-                await nvmc_ready()
 
                 logger.info("Done!")
             }
@@ -527,8 +534,14 @@ document.addEventListener('DOMContentLoaded', event => {
         curr_device = null;
     }
 
+    if (navigator.userAgent.match(/SamsungBrowser/i)) {
+        logger.error("Samsung Internet is not supported. Please use Chrome.");
+        flashButton.disabled = true;
+        countdownButton.disabled = true;
+    }
+
     if (typeof navigator.usb === 'undefined') {
-        logger.error("WebUSB is either disabled or not available in this browser");
+        logger.error("WebUSB is either disabled or not available in this browser.");
         flashButton.disabled = true;
         countdownButton.disabled = true;
     }
