@@ -54,67 +54,52 @@
         const scooter = url.searchParams.get("scooter")
         const target = url.searchParams.get("t")
 
-        if (target && scooter) {
-          console.log(target, scooter)
-          if (target == "drv") {
-            switch (scooter) {
-              case "max":
-                document.getElementById("images").innerHTML = "<a href=\"/images/G30-DRV.png\"><img src=\"/images/G30-DRV.png\" width=\"300\"></a> <a href=\"/images/G30D-DRV.jpg\"><img src=\"/images/G30D-DRV.jpg\" width=\"250\"></a> <a href=\"/images/G30_AT32-DRV.png\"><img src=\"/images/G30_AT32-DRV.png\" width=\"300\"></a> ";
-                break;
-              case "g2":
-                document.getElementById("images").innerHTML = "<a href=\"/images/G2-F2-DRV.jpg\"><img src=\"/images/G2-F2-DRV.jpg\" width=\"400\"></a>";
-                break;
-              case "f":
-                document.getElementById("images").innerHTML = "<a href=\"/images/FD-Series-DRV.png\"><img src=\"/images/FD-Series-DRV.png\" width=\"400\"></a>";
-                break;
-              case "pro2":
-                document.getElementById("images").innerHTML = "<a href=\"/images/LITE_1S_MI3_PRO2-DRV.png\"><img src=\"/images/LITE_1S_MI3_PRO2-DRV.png\" width=\"400\"></a>";
-                break;
-              case "lite":
-                document.getElementById("images").innerHTML = "<a href=\"/images/LITE_1S_MI3_PRO2-DRV.png\"><img src=\"/images/LITE_1S_MI3_PRO2-DRV.png\" width=\"400\"></a>";
-                break;
-              case "1s":
-                document.getElementById("images").innerHTML = "<a href=\"/images/LITE_1S_MI3_PRO2-DRV.png\"><img src=\"/images/LITE_1S_MI3_PRO2-DRV.png\" width=\"400\"></a>";
-                break;
-              case "mi3":
-                document.getElementById("images").innerHTML = "<a href=\"/images/LITE_1S_MI3_PRO2-DRV.png\"><img src=\"/images/LITE_1S_MI3_PRO2-DRV.png\" width=\"400\"></a>";
-                break;
-              case "pro":
-                document.getElementById("images").innerHTML = "<a href=\"/images/M365_PRO-DRV.png\"><img src=\"/images/M365_PRO-DRV.png\" width=\"400\"></a>";
-                break;
-              case "esx":
-                document.getElementById("images").innerHTML = "<a href=\"/images/ESX_E-DRV.png\"><img src=\"/images/ESX_E-DRV.png\" width=\"400\"></a>";
-                break;
-            }
-          } else {
-            switch (scooter) {
-              case "max":
-                document.getElementById("images").innerHTML = "<a href=\"/images/G30-BLE.png\"><img src=\"/images/G30-BLE.png\" width=\"300\"></a>";
-                break;
-              case "f":
-                document.getElementById("images").innerHTML = "<a href=\"/images/FD-Series-BLE.png\"><img src=\"/images/FD-Series-BLE.png\" width=\"400\"></a>";
-                break;
-              case "pro2":
-                document.getElementById("images").innerHTML = "<a href=\"/images/LITE_1S_MI3_PRO2-BLE.png\"><img src=\"/images/LITE_1S_MI3_PRO2-BLE.png\" width=\"400\"></a>";
-                break;
-              case "lite":
-                document.getElementById("images").innerHTML = "<a href=\"/images/LITE_1S_MI3_PRO2-BLE.png\"><img src=\"/images/LITE_1S_MI3_PRO2-BLE.png\" width=\"400\"></a>";
-                break;
-              case "1s":
-                document.getElementById("images").innerHTML = "<a href=\"/images/LITE_1S_MI3_PRO2-BLE.png\"><img src=\"/images/LITE_1S_MI3_PRO2-BLE.png\" width=\"400\"></a>";
-                break;
-              case "mi3":
-                document.getElementById("images").innerHTML = "<a href=\"/images/LITE_1S_MI3_PRO2-BLE.png\"><img src=\"/images/LITE_1S_MI3_PRO2-BLE.png\" width=\"400\"></a>";
-                break;
-              case "pro":
-                document.getElementById("images").innerHTML = "<a href=\"/images/PRO-BLE.jpg\"><img src=\"/images/PRO-BLE.jpg\" width=\"400\"></a>";
-                break;
-              case "esx":
-                document.getElementById("images").innerHTML = "<a href=\"/images/ESX_E-BLE.png\"><img src=\"/images/ESX_E-BLE.png\" width=\"400\"></a>";
-                break;
+        var scooters = {
+          "ble": {
+            "max": ["/images/G30-DRV.png", "/images/G30D-DRV.jpg", "/images/G30-BLE.png"],
+            "f": ["/images/FD-Series-BLE.png"],
+            "pro2": ["/images/LITE_1S_MI3_PRO2-BLE.png"],
+            "lite": ["/images/LITE_1S_MI3_PRO2-BLE.png"],
+            "1s": ["/images/LITE_1S_MI3_PRO2-BLE.png"],
+            "mi3": ["/images/LITE_1S_MI3_PRO2-BLE.png"],
+            "pro": ["/images/PRO-BLE.jpg"],
+            "esx": ["/images/ESX_E-BLE.png"]
+          },
+          "drv": {
+            "max": ["/images/G30-DRV.png", "/images/G30D-DRV.jpg", "/images/G30_AT32-DRV.png"],
+            "g2": ["/images/G2-F2-DRV.jpg"],
+            "f": ["/images/FD-Series-DRV.png"],
+            "pro2": ["/images/LITE_1S_MI3_PRO2-DRV.png"],
+            "lite": ["/images/LITE_1S_MI3_PRO2-DRV.png"],
+            "1s": ["/images/LITE_1S_MI3_PRO2-DRV.png"],
+            "mi3": ["/images/LITE_1S_MI3_PRO2-DRV.png"],
+            "pro": ["/images/M365_PRO-DRV.png"],
+            "esx": ["/images/ESX_E-DRV.png"]
           }
         }
-      }
+
+
+        var imgs = Array()
+        try {
+          for (i in scooters[target][scooter]) {
+            imgs.push(scooters[target][scooter][i])
+          }
+        } catch {
+          for (i in scooters) {
+            for (b in scooters[i]) {
+              for (c in scooters[i][b]) {
+                imgs.push(scooters[i][b][c])
+              }
+            }
+          }
+        }
+
+        var html = ""
+        imgs = [...new Set(imgs)]
+        for (i in imgs) {
+          html += "<a href=" + imgs[i] + "><img src=" + imgs[i] + " width=\"400\"></a>"
+        }
+        document.getElementById("images").innerHTML = html
       });
     </script>
   </head>

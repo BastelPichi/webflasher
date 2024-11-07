@@ -350,7 +350,13 @@ document.addEventListener('DOMContentLoaded', event => {
     }
 
     async function startFlashing(device, ble) {
-        let next_stlink = new WebStlink(logger, false);
+        var next_stlink;
+        if (ble) {
+            next_stlink = new WebStlink(logger, true);
+        } else {
+            next_stlink = new WebStlink(logger, false);
+        }
+        
             
         try {
             await next_stlink.attach(device, logger);
@@ -474,27 +480,44 @@ document.addEventListener('DOMContentLoaded', event => {
 
 
                 var boot = new Uint8Array()
+                var scooterName = new Uint8Array([
+                    0x55, 0xAA, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x4D, 0x49, 0x53, 0x63,
+                    0x6F, 0x6F, 0x74, 0x65, 0x72, 0x30, 0x30, 0x30, 0x30, 0x00, 0x00, 0x00
+                ]);
                 var boot_adress = 0x3C000
+                var scooterDataAdress = 0x3B400
+
                 if (v2) {
                     array = await binFetch("/bin/bootloader/mi_BLE_V2.bin")
                     boot = await binFetch("/bin/bootloader/boot-32k")
                     boot_adress = 0x3D000
-
-                    await stlink._driver._stlink.set_mem32(0x10001014, new Uint8Array([0x00, 0xD0, 0x03, 0x0]))
-                    await nvmc_ready()
+                    scooterDataAdress = 0x3B800
                 } else if (nb) {
                     array = await binFetch("/bin/bootloader/nb_BLE.bin")
                     boot = await binFetch("/bin/bootloader/boot-16k")
 
-                    await stlink._driver._stlink.set_mem32(0x10001014, new Uint8Array([0x00, 0xD0, 0x03, 0x0]))
-                    await nvmc_ready()
+                    scooterName[8] = 0x4E
                 } else {
                     array = await binFetch("/bin/bootloader/mi_BLE.bin")
                     boot = await binFetch("/bin/bootloader/boot-16k")
+                }
 
+                var name = new TextEncoder().encode(document.getElementById("flash-name").value)
+                if (name.length) {
+                    scooterName.set(new Uint8Array(13), 8)
+                    scooterName.set(name, 8)
+                }
+
+                if (v2) {
+                    await stlink._driver._stlink.set_mem32(0x10001014, new Uint8Array([0x00, 0xD0, 0x03, 0x0]))
+                    await nvmc_ready()
+                } else {
                     await stlink._driver._stlink.set_mem32(0x10001014, new Uint8Array([0x00, 0xC0, 0x03, 0x0]))
                     await nvmc_ready()
                 }
+                    
+                await stlink._driver._stlink.set_mem32(scooterDataAdress, scooterName)
+                await nvmc_ready()
                 
                 await flash_nrf(array)
 
@@ -503,6 +526,8 @@ document.addEventListener('DOMContentLoaded', event => {
                 
                 flash_nrf(boot, boot_adress)
 
+                await new Promise(r => setTimeout(r, 1000));
+                await stlink.reset()
                 logger.info("Done!")
             }
         }
