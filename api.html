@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="sakura-earthly.css" />
+    <title>Webflasher | Images</title>
+    <style>
+      div.debug {
+        white-space: pre;
+      }
+      div.verbose {
+        white-space: pre;
+      }
+      div.info {
+        white-space: pre;
+      }
+      div.message {
+        white-space: pre;
+      }
+      div.error {
+        white-space: pre;
+        color: red;
+      }
+      div.warning {
+        white-space: pre;
+        color: red;
+      }
+      div.log {
+        min-height: 3em;
+        max-height: 10em;
+        font-family: monospace;
+        overflow-y:scroll;
+      }
+
+      div.registers {
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      span.register {
+        white-space: pre;
+        font-family: monospace;
+        flex: 1 0 27ch;
+        margin-left: 3ch;
+      }
+
+      span.register-updated {
+        font-weight: bold;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h3>
+      Webflasher API
+    </h3>
+    <p>
+      This is still in development.
+    </p>
+    <p>
+        Select BLE:<br>
+        https://flash.bastelpichi.de/?t=ble<br>
+        Select Pro 2 Scooter:<br>
+        https://flash.bastelpichi.de/?scooter=pro2<br>
+        Supply external FW-Binary:
+        https://flash.bastelpichi.de/?firmware=https://example.org/firmware.bin<br>
+        <i>Note: The user will get a warning displayed when this is used.</i><br>
+        <i>Note: CORS needs to allow access to this. So preferably this binary is from raw.githubusercontent.com</i>
+        <br><br>
+        We can combine these:<br>
+        https://flash.bastelpichi.de/?scooter=pro2&t=ble&firmware=https://example.org/firmware.bin<br>
+        <br>
+        <i>Note: If an user switches from BLE to DRV, or from DRV to BLE while an external FW binary is supplied, all parameters will be erased and the form reset entirely.</i>
+    </p>
+
+    <p>
+        View all Images: <a href="https://flash.bastelpichi.de/images.html">https://flash.bastelpichi.de/images.html</a><br>
+        View all DRV Images for Ninebot G30: <a href="https://flash.bastelpichi.de/images.html?t=drv&scooter=max">https://flash.bastelpichi.de/images.html?t=drv&scooter=max</a><br>
+        View all BLE Images for Ninebot G30: <a href="https://flash.bastelpichi.de/images.html?t=ble&scooter=max">https://flash.bastelpichi.de/images.html?t=ble&scooter=max</a><br>
+    </p>
+    </div>
+  </body>
+</html>

@@ -77,11 +77,12 @@ class TargetCache {
 }
 
 export default class WebStlink {
-    constructor(dbg = null, nrf=false) {
+    constructor(dbg = null, nrf=false, slow=false) {
         this._stlink = null;
         this._driver = null;
         this._dbg = dbg;
-        this._nrf = nrf
+        this._nrf = nrf;
+        this._slow = slow;
         this._mcu = null;
         this._mutex = new Mutex;
         this._callbacks = {
@@ -146,7 +147,7 @@ export default class WebStlink {
             try {
                 await connector.connect();
                 try {
-                    if (this._nrf) {
+                    if (this._slow) {
                         await stlink.init(5000);
                     } else {
                         await stlink.init();

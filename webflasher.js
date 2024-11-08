@@ -6,6 +6,7 @@ var mi_scooters = ["pro", "1s", "lite", "pro2", "mi3"];
 
 var userfw;
 var ble = false;
+var strictRefresh = false;
 
 function read_file_as_array_buffer(file) {
     return new Promise(function (resolve, reject) {
@@ -111,7 +112,13 @@ document.addEventListener('DOMContentLoaded', event => {
             ble = true;
             document.getElementById("drv-input").style.display = "none"
             document.getElementById("ble-input").style.display = "block"
+
+            if (strictRefresh) {
+                window.history.pushState({}, document.title, window.location.pathname + "?t=ble");
+                location.reload()
+            }
         } else {
+            window.history.pushState({}, document.title, window.location.pathname);
             location.reload()
         }
     })
@@ -122,13 +129,39 @@ document.addEventListener('DOMContentLoaded', event => {
 
     if (params.firmware) {
         var url = new URL(params.firmware)
-        console.log(url, url.protocol)
         if (!["http:", "https:", "ftp:"].includes(url.protocol)) {
             throw new Error("Invalid URL protocol");
         }
 
+        strictRefresh = true;
+
         document.getElementById("third-party-overlay").style.display = "flex";
         document.getElementById("third-url").textContent = url.href.replace(/(.{70})/g,"$1\n")
+    }
+
+    if (params.t) {
+        if (params.t == "ble") {
+            ble = true;
+
+            targetElm.value = "ble"
+            document.getElementById("drv-input").style.display = "none"
+            document.getElementById("ble-input").style.display = "block"
+        }
+    }
+
+    var paramScooter = params.scooter;
+    if (paramScooter) {
+        paramScooter = paramScooter.toLowerCase();
+        if (/^[a-z0-9]+$/.test(paramScooter)) {
+            if (nb_scooters.includes(params.scooter) || mi_scooters.includes(params.scooter)) {
+
+                if (ble) {
+                    scooterSelectionBle.value = params.scooter;
+                } else {
+                    scooterSelectionDrv.value = params.scooter;
+                }
+            }
+        }
     }
 
     imagesDrv.addEventListener('click', async function () {
@@ -352,9 +385,9 @@ document.addEventListener('DOMContentLoaded', event => {
     async function startFlashing(device, ble) {
         var next_stlink;
         if (ble) {
-            next_stlink = new WebStlink(logger, true);
+            next_stlink = new WebStlink(logger, true, !document.getElementById("full-speed").checked);
         } else {
-            next_stlink = new WebStlink(logger, false);
+            next_stlink = new WebStlink(logger, false, false);
         }
         
             
@@ -449,10 +482,6 @@ document.addEventListener('DOMContentLoaded', event => {
                 await stlink.reset()
 
                 logger.info("Flashing Done");
-
-                if (stlink !== null)
-                await stlink.detach();
-                on_disconnect();
             } else {
                 logger.info("Erasing...")
             
@@ -469,27 +498,25 @@ document.addEventListener('DOMContentLoaded', event => {
                 await nvmc_ready();
 
                 var v2 = false;
-                if (["pro2", "1s", "lite", "mi3"].includes(scooter)) {
+                if (scooter in ["pro2", "1s", "lite", "mi3"]) {
                     v2 = true;
                 }
-
-                var fw_addr = 0x1B000;
-                if (fake || !v2) {
-                    fw_addr = 0x18000
-                }
-
 
                 var boot = new Uint8Array()
                 var scooterName = new Uint8Array([
                     0x55, 0xAA, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x4D, 0x49, 0x53, 0x63,
                     0x6F, 0x6F, 0x74, 0x65, 0x72, 0x30, 0x30, 0x30, 0x30, 0x00, 0x00, 0x00
                 ]);
+
+                var fw_addr = 0x18000;
                 var boot_adress = 0x3C000
                 var scooterDataAdress = 0x3B400
 
                 if (v2) {
                     array = await binFetch("/bin/bootloader/mi_BLE_V2.bin")
                     boot = await binFetch("/bin/bootloader/boot-32k")
+
+                    fw_addr = 0x1B000;
                     boot_adress = 0x3D000
                     scooterDataAdress = 0x3B800
                 } else if (nb) {
@@ -497,6 +524,7 @@ document.addEventListener('DOMContentLoaded', event => {
                     boot = await binFetch("/bin/bootloader/boot-16k")
 
                     scooterName[8] = 0x4E
+                    scooterName[9] = 0x42
                 } else {
                     array = await binFetch("/bin/bootloader/mi_BLE.bin")
                     boot = await binFetch("/bin/bootloader/boot-16k")
@@ -510,26 +538,33 @@ document.addEventListener('DOMContentLoaded', event => {
 
                 if (v2) {
                     await stlink._driver._stlink.set_mem32(0x10001014, new Uint8Array([0x00, 0xD0, 0x03, 0x0]))
-                    await nvmc_ready()
                 } else {
                     await stlink._driver._stlink.set_mem32(0x10001014, new Uint8Array([0x00, 0xC0, 0x03, 0x0]))
-                    await nvmc_ready()
                 }
+                await nvmc_ready()
                     
                 await stlink._driver._stlink.set_mem32(scooterDataAdress, scooterName)
                 await nvmc_ready()
                 
                 await flash_nrf(array)
 
-                var array = await binFetch(getBle(scooter))
+                var array = userfw;
+                if (!array) {
+                    array = await binFetch(getBle(scooter))
+                }
                 await flash_nrf(array, fw_addr)
                 
                 flash_nrf(boot, boot_adress)
 
-                await new Promise(r => setTimeout(r, 1000));
+                await new Promise(r => setTimeout(r, 1000)); // wait a second before resetting. We have issues resetting the MCU if we dont do this.
                 await stlink.reset()
                 logger.info("Done!")
             }
+
+            if (stlink !== null) {
+                await stlink.detach();
+                on_disconnect();
+            }       
         }
     }
         
