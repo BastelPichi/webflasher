@@ -498,7 +498,7 @@ document.addEventListener('DOMContentLoaded', event => {
                 await nvmc_ready();
 
                 var v2 = false;
-                if (scooter in ["pro2", "1s", "lite", "mi3"]) {
+                if (["pro2", "1s", "lite", "mi3"].includes(scooter)) {
                     v2 = true;
                 }
 
