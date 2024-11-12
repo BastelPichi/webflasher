@@ -1,3 +1,12 @@
+/* Copyright (c) 2024 BastelPichi
+*
+* The GPL License applies to this program. Please consult the LICENSE file. 
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*/
 import * as libstlink from './src/lib/package.js';
 import WebStlink from './src/webstlink.js';
 
