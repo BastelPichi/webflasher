@@ -14,6 +14,7 @@ var nb_scooters = ["esx", "max", "g2", "f", "f2", "4pro"]; // technically the 4 
 var mi_scooters = ["pro", "1s", "lite", "pro2", "mi3"];
 
 var userfw;
+var scooter;
 var ble = false;
 var strictRefresh = false;
 
@@ -67,7 +68,6 @@ async function pick_sram_variant(mcu_list) {
         tbody.removeChild(row);
     }
 
-    var scooter = document.getElementById("scooter").value;
     var fake = document.getElementById("fake").checked
 
     var chip = "STM32"
@@ -105,7 +105,44 @@ document.addEventListener('DOMContentLoaded', event => {
     let countdownButton = document.querySelector("#countdownButton");
     let scooterSelectionBle = document.querySelector("#ble-scooter");
     let scooterSelectionDrv = document.querySelector("#drv-scooter");
-    let targetElm = document.getElementById("target")
+    let targetElm = document.getElementById("target");
+    let dropZone = document.getElementById("dropZone");
+
+    document.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropZone.style.display = "block";
+    });
+
+    document.addEventListener("dragleave", (e) => {
+        if (!e.relatedTarget || e.relatedTarget === document) {
+            dropZone.style.display = "none";
+        }
+    });
+
+    document.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropZone.style.display = "none";
+
+        logger.info("Uploading file...")
+        const files = e.dataTransfer.files;
+        if (files.length) {
+            const file = files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(event) {
+                const arrayBuffer = event.target.result;
+                
+                logger.info("Upload Successful.");
+                userfw = new Uint8Array(arrayBuffer);
+            };
+
+            reader.onerror = function() {
+                logger.error("Error uploading.");
+            };
+
+            reader.readAsArrayBuffer(file);
+        }
+    });
 
     document.getElementById("accept").addEventListener("click", function() {
         document.getElementById("disclaimer-overlay").style.display = "none";
@@ -236,10 +273,10 @@ document.addEventListener('DOMContentLoaded', event => {
 
         var scooterData;
         if (scooter == "4pro") {
-            scooterData = await binFetch("/bin/data/4pro")
+            scooterData = await binFetch("./bin/data/4pro")
             scooterData.set(snBytes, 0xa8);
         } else {
-            scooterData = await binFetch("/bin/data/default")
+            scooterData = await binFetch("./bin/data/default")
             scooterData.set(snBytes, 0x20);
         }
 
@@ -282,7 +319,7 @@ document.addEventListener('DOMContentLoaded', event => {
     }
 
     function getBootloader(fake, nb) {
-        var bootloader = "/bin/bootloader/"
+        var bootloader = "./bin/bootloader/"
             
         if (nb) {
             if (fake) {
@@ -414,7 +451,7 @@ document.addEventListener('DOMContentLoaded', event => {
         }
 
         if (stlink !== null && stlink.connected) {
-            var scooter = scooterSelectionDrv.value;
+            scooter = scooterSelectionDrv.value;
 
             if (ble) {
                 scooter = scooterSelectionBle.value;
@@ -458,7 +495,7 @@ document.addEventListener('DOMContentLoaded', event => {
                         new Uint8Array(Array.from(memory.slice(8, 12)).reverse())
                 ]
 
-                var sn = document.getElementById("sn")
+                var sn = document.getElementById("sn").value
                 if (sn == "") {
                     sn = "00000/000000000"
                 }
@@ -522,21 +559,21 @@ document.addEventListener('DOMContentLoaded', event => {
                 var scooterDataAdress = 0x3B400
 
                 if (v2) {
-                    array = await binFetch("/bin/bootloader/mi_BLE_V2.bin")
-                    boot = await binFetch("/bin/bootloader/boot-32k")
+                    array = await binFetch("./bin/bootloader/mi_BLE_V2.bin")
+                    boot = await binFetch("./bin/bootloader/boot-32k")
 
                     fw_addr = 0x1B000;
                     boot_adress = 0x3D000
                     scooterDataAdress = 0x3B800
                 } else if (nb) {
-                    array = await binFetch("/bin/bootloader/nb_BLE.bin")
-                    boot = await binFetch("/bin/bootloader/boot-16k")
+                    array = await binFetch("./bin/bootloader/nb_BLE.bin")
+                    boot = await binFetch("./bin/bootloader/boot-16k")
 
                     scooterName[8] = 0x4E
                     scooterName[9] = 0x42
                 } else {
-                    array = await binFetch("/bin/bootloader/mi_BLE.bin")
-                    boot = await binFetch("/bin/bootloader/boot-16k")
+                    array = await binFetch("./bin/bootloader/mi_BLE.bin")
+                    boot = await binFetch("./bin/bootloader/boot-16k")
                 }
 
                 var name = new TextEncoder().encode(document.getElementById("flash-name").value)
