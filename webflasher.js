@@ -219,7 +219,7 @@ document.addEventListener('DOMContentLoaded', event => {
     })
 
     scooterSelectionDrv.addEventListener("change", event => {
-        if (scooterSelectionDrv.value == "g2") {
+        if (scooterSelectionDrv.value == "g2" || scooterSelectionDrv.value == "f2") {
             document.getElementById("fake").checked = true
         }
     })
