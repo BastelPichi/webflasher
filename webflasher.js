@@ -10,7 +10,7 @@
 import * as libstlink from './src/lib/package.js';
 import WebStlink from './src/webstlink.js';
 
-var nb_scooters = ["esx", "max", "g2", "f", "f2", "4pro"]; // technically the 4 pro is Xiaomi. However as we use the NB Bootloader, we will consider it as NB.
+var nb_scooters = ["esx", "max", "g2", "f", "f2", "4pro", "e"]; // technically the 4 pro is Xiaomi. However as we use the NB Bootloader, we will consider it as NB.
 var mi_scooters = ["pro", "1s", "lite", "pro2", "mi3"];
 
 var userfw;
@@ -353,6 +353,7 @@ document.addEventListener('DOMContentLoaded', event => {
             case "pro": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/pro/BLE/0.9.0.bin"; break;
             case "pro2": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/pro2/BLE/1.2.9.bin"; break;
             case "4pro": url = "https://raw.githubusercontent.com/CamiAlfa/m365-Electric-Scooter-4-Pro-stlink/refs/heads/main/EC_ESC_Driver_V0.2.2_mod.bin"; break;
+            case "e": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/e/BLE/2.1.3.bin"; break;
         }
         return url
     }
@@ -371,6 +372,7 @@ document.addEventListener('DOMContentLoaded', event => {
             case "g2": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/g2/DRV/1.7.0%20(Compat).bin"; break;
             case "pro": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/pro/DRV/1.7.1.bin"; break;
             case "pro2": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/pro2/DRV/2.5.2.bin"; break;
+            case "e": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/e/DRV/2.7.1 (Compat).bin"; break;
             case "4pro": url = "https://raw.githubusercontent.com/CamiAlfa/m365-Electric-Scooter-4-Pro-stlink/refs/heads/main/EC_ESC_Driver_V0.2.2_mod.bin"; break;
         }
         return url
