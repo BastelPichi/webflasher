@@ -497,6 +497,8 @@ document.addEventListener('DOMContentLoaded', event => {
                         new Uint8Array(Array.from(memory.slice(8, 12)).reverse())
                 ]
 
+		logger.info("UID: " + uid[0].toString(16) + uid[1].toString(16) + uid[2].toString(16))
+
                 var sn = document.getElementById("sn").value
                 if (sn == "") {
                     sn = "00000/000000000"
