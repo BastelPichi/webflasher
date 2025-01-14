@@ -430,6 +430,27 @@ document.addEventListener('DOMContentLoaded', event => {
           }
     }
 
+    function uidToHex(arr) {
+        for (let i = 0; i < arr.length - 1; i += 2) {
+            let temp = arr[i];
+            arr[i] = arr[i + 1];
+            arr[i + 1] = temp;
+        }
+    
+        return Array.from(arr)
+            .map(byte => byte.toString(16).padStart(2, '0'))
+            .join('').toUpperCase();
+    }
+
+    async function stats(scooter, ble) {
+        await fetch("https://api.bastelpichi.de/wf/log", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ model: scooter, target: ble ? "ble" : "drv" }),
+        });
+    }
+    
+
     async function startFlashing(device, ble) {
         var next_stlink;
         if (ble) {
@@ -497,7 +518,7 @@ document.addEventListener('DOMContentLoaded', event => {
                         new Uint8Array(Array.from(memory.slice(8, 12)).reverse())
                 ]
 
-		logger.info("UID: " + uid[0].toString(16) + uid[1].toString(16) + uid[2].toString(16))
+		        logger.info("UID: " + uidToHex(memory))
 
                 var sn = document.getElementById("sn").value
                 if (sn == "") {
@@ -532,6 +553,7 @@ document.addEventListener('DOMContentLoaded', event => {
                 await stlink.reset()
 
                 logger.info("Flashing Done");
+                await stats(scooter, ble)
             } else {
                 logger.info("Erasing...")
             
@@ -609,6 +631,7 @@ document.addEventListener('DOMContentLoaded', event => {
                 await new Promise(r => setTimeout(r, 1000)); // wait a second before resetting. We have issues resetting the MCU if we dont do this.
                 await stlink.reset()
                 logger.info("Done!")
+                await stats(scooter, ble)
             }
 
             if (stlink !== null) {
