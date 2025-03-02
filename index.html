@@ -125,6 +125,10 @@
             line-height: 100vh;
             z-index: 10;
         }
+
+        #fake-text {
+          display: none;
+        }
     </style>
   </head>
 
@@ -185,7 +189,9 @@
           <option value="4pro">Xiaomi 4 Pro</option>
         </select> <a id="images-drv">Images</a>
         <br>
-        <input type="checkbox" id="fake"> Fake Chip (AT32/GD32/NRF5102)
+        <div id="fake-text">
+          <input type="checkbox" id="fake"> Fake Chip (GD32)
+        </div>
       </div>
       <div id="ble-input">
         Bluetooth Name: <input type="text" id="flash-name" placeholder="MIScooter0000" size="10" maxlength="13"></input><br>

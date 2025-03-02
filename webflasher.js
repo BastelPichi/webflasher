@@ -68,16 +68,12 @@ async function pick_sram_variant(mcu_list) {
         tbody.removeChild(row);
     }
 
-    var fake = document.getElementById("fake").checked
+    var fake = document.getElementById("fake-text").checked
 
     var chip = "STM32"
 
     if (fake) {
-        if (nb_scooters.indexOf(scooter) >= 0) {
-            chip = "AT32"
-        } else {
-            chip = "GD32"
-        }
+        chip = "GD32"
     }
 
     try {
@@ -205,6 +201,9 @@ document.addEventListener('DOMContentLoaded', event => {
                     scooterSelectionBle.value = params.scooter;
                 } else {
                     scooterSelectionDrv.value = params.scooter;
+                    if (mi_scooters.includes(scooterSelectionDrv.value)) {
+                        document.getElementById("fake-text").style.display = "block";
+                    }
                 }
             }
         }
@@ -219,8 +218,10 @@ document.addEventListener('DOMContentLoaded', event => {
     })
 
     scooterSelectionDrv.addEventListener("change", event => {
-        if (scooterSelectionDrv.value == "g2" || scooterSelectionDrv.value == "f2") {
-            document.getElementById("fake").checked = true
+        if (mi_scooters.includes(scooterSelectionDrv.value)) {
+            document.getElementById("fake-text").style.display = "block";
+        } else {
+            document.getElementById("fake-text").style.display = "none";
         }
     })
 
@@ -322,7 +323,7 @@ document.addEventListener('DOMContentLoaded', event => {
         var bootloader = "./bin/bootloader/"
             
         if (nb) {
-            if (fake) {
+            if (stlink._mcu.type == "AT32") {
                 bootloader += "nb_DRV_AT32.bin"
             } else {
                 bootloader += "nb_DRV.bin"
@@ -485,19 +486,6 @@ document.addEventListener('DOMContentLoaded', event => {
             var nb = false
             if (nb_scooters.indexOf(scooter) >= 0) {
                 nb = true
-            }
-
-            var chip = "STM32"
-            if (fake) {
-                if (nb) {
-                    chip = "AT32"
-                } else {
-                    chip = "GD32"
-                }
-            }
-
-            if (ble) {
-                chip = "NRF51"
             }
 
             await stlink.reset(true)
