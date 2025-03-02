@@ -512,7 +512,7 @@ document.addEventListener('DOMContentLoaded', event => {
                 if (sn == "") {
                     sn = "00000/000000000"
                 }
-                const scooterData = await getScooterData(uid, sn, parseInt(document.getElementById("km"), 10), scooter);
+                const scooterData = await getScooterData(uid, sn, parseInt(document.getElementById("km")).value, scooter);
 
                 var bootloader = await binFetch(getBootloader(fake, nb))
 
