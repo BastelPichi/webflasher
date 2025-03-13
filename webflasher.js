@@ -10,7 +10,7 @@
 import * as libstlink from './src/lib/package.js';
 import WebStlink from './src/webstlink.js';
 
-var nb_scooters = ["esx", "max", "g2", "f", "f2", "4pro", "e"]; // technically the 4 pro is Xiaomi. However as we use the NB Bootloader, we will consider it as NB.
+var nb_scooters = ["esx", "max", "g2", "f", "f2", "4pro", "e", "g65", "e2pro"]; // technically the 4 pro is Xiaomi. However as we use the NB Bootloader, we will consider it as NB.
 var mi_scooters = ["pro", "1s", "lite", "pro2", "mi3"];
 
 var userfw;
@@ -522,6 +522,8 @@ document.addEventListener('DOMContentLoaded', event => {
                     var url = getDrv(scooter)
 
                     if (!url) {
+                        logger.error("No Firmware file for this scooter.");
+                        logger.error("Supply your own by Drag-and-Dropping it into this page.")
                         await stlink.detach();
                         on_disconnect();
                         return;
