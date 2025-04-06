@@ -365,8 +365,8 @@ document.addEventListener('DOMContentLoaded', event => {
         switch (scooter) {
             case "esx": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/esx/DRV/1.6.4.bin"; break;
             case "1s": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/1s/DRV/3.1.9%20(Downgrade).bin"; break;
-            case "f": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/f/DRV/5.4.9.bin"; break;
-            case "f2": url = "https://raw.githubusercontent.com/scooterhacking/firmware/64956bb2752a2d965a958706f996c6a4a9d75612/f2/DRV/1.4.15.bin"; break; 
+            case "f": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/f/DRV/5.8.4 (Compat).bin"; break;
+            case "f2": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/f2/DRV/1.7.8 (Compat).bin"; break; 
             case "lite": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/lite/DRV/2.4.5%20(Downgrade).bin"; break;
             case "mi3": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/mi3/DRV/0.1.7.bin"; break;
             case "max": url = "https://raw.githubusercontent.com/scooterhacking/firmware/master/max/DRV/1.6.13%20(Compat).bin"; break;
